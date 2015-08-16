@@ -2,27 +2,26 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"log"
 	"net"
 	"net/http"
-	"net/rpc"
 	"os"
 	"os/exec"
 )
 
-type Worker struct{}
-
 type ExecReq struct {
-	Name string
-	Args []string
+	Name string   `json:"name"`
+	Args []string `json:"args"`
 }
 
 type ExecReply struct {
-	Stdout string
-	Stderr string
+	Stdout  string `json:"stdout"`
+	Stderr  string `json:"stderr"`
+	Success bool   `json:"success"`
 }
 
-func (w *Worker) Exec(req ExecReq, reply *ExecReply) error {
+func Exec(req ExecReq, reply *ExecReply) error {
 
 	cmd := exec.Command(req.Name, req.Args...)
 
@@ -36,6 +35,7 @@ func (w *Worker) Exec(req ExecReq, reply *ExecReply) error {
 
 	reply.Stdout = string(stdout.Bytes())
 	reply.Stderr = string(stderr.Bytes())
+	reply.Success = cmd.ProcessState.Success()
 
 	return err
 
@@ -43,8 +43,41 @@ func (w *Worker) Exec(req ExecReq, reply *ExecReply) error {
 
 func runWorker(name string) {
 
-	rpc.Register(&Worker{})
-	rpc.HandleHTTP()
+	http.HandleFunc("/exec", func(w http.ResponseWriter, r *http.Request) {
+
+		defer r.Body.Close()
+
+		if r.Method != "POST" {
+			http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+			return
+		}
+
+		dec := json.NewDecoder(r.Body)
+
+		var execReq ExecReq
+		err := dec.Decode(&execReq)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		var execReply ExecReply
+
+		err = Exec(execReq, &execReply)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		buf, err := json.Marshal(&execReply)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		w.Write(buf)
+
+	})
 
 	l, err := net.Listen("unix", name+".sock")
 	if err != nil {
