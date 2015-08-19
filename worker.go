@@ -19,9 +19,10 @@ type ExecReply struct {
 	Stdout  string `json:"stdout"`
 	Stderr  string `json:"stderr"`
 	Success bool   `json:"success"`
+	Error   string `json:"error"`
 }
 
-func Exec(req ExecReq, reply *ExecReply) error {
+func Exec(req ExecReq, reply *ExecReply) {
 
 	cmd := exec.Command(req.Name, req.Args...)
 
@@ -36,8 +37,9 @@ func Exec(req ExecReq, reply *ExecReply) error {
 	reply.Stdout = string(stdout.Bytes())
 	reply.Stderr = string(stderr.Bytes())
 	reply.Success = cmd.ProcessState.Success()
-
-	return err
+	if err != nil {
+		reply.Error = err.Error()
+	}
 
 }
 
@@ -63,11 +65,7 @@ func runWorker(name string) {
 
 		var execReply ExecReply
 
-		err = Exec(execReq, &execReply)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
+		Exec(execReq, &execReply)
 
 		buf, err := json.Marshal(&execReply)
 		if err != nil {
