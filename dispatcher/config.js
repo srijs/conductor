@@ -7,7 +7,9 @@ module.exports = {
   },
 
   images: {
-    worker: '9fb80427f748',
+    workers: {
+      'abc': '9fb80427f748',
+    },
     controller: 'c2981d0ed403'
   },
 

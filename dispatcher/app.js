@@ -4,4 +4,4 @@ var config = require('./config');
 
 var dispatcher = new RemoteDispatcher(config);
 
-dispatcher.dispatch([]);
+dispatcher.dispatch(['abc']);

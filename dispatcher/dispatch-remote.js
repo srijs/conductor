@@ -20,10 +20,13 @@ RemoteDispatcher.prototype.dispatch = function (workers) {
     cc = controllerContainer;
     console.log(controllerContainer);
   }).then(function () {
-    return this._createWorker(cc, 'abc');
-  }).then(function (workerContainer) {
-    console.log(workerContainer);
-    return this._startContainer(workerContainer);
+    return Promise.map(workers, function (worker) {
+      return this._createWorker(cc, worker).then(function (workerContainer) {
+        return this._startContainer(workerContainer).return(workerContainer);
+      }.bind(this));
+    }.bind(this));
+  }).then(function (workerContainers) {
+    console.log(workerContainers);
   }).then(function () {
     return this._startContainer(cc);
   });
@@ -49,7 +52,7 @@ RemoteDispatcher.prototype._createWorker = function (controllerContainer, worker
   var docker = this._docker;
   return new Promise(function (resolve, reject) {
     docker.createContainer({
-      Image: config.images.worker,
+      Image: config.images.workers[worker],
       VolumesFrom: [controllerContainer.id],
       // Enforce multiplexed logging output
       Tty: false,
