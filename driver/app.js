@@ -4,4 +4,4 @@ var config = require('./config');
 
 var driver = new RemoteDriver(config);
 
-driver.run(['abc']);
+driver.run();

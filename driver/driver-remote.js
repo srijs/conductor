@@ -12,7 +12,8 @@ var RemoteDriver = module.exports = function (config) {
 
 };
 
-RemoteDriver.prototype.run = function (workers) {
+RemoteDriver.prototype.run = function () {
+  var workers = Object.keys(this.config.images.workers);
   var cc;
   return Promise.bind(this).then(function () {
     return this._createController();
