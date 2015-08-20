@@ -1,7 +1,7 @@
 {
-  "name": "dispatcher",
+  "name": "driver",
   "version": "1.0.0",
-  "description": "Conductor Dispatcher",
+  "description": "Conductor Driver",
   "main": "app.js",
   "author": "Sam Rijs",
   "license": "MIT",

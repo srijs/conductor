@@ -5,14 +5,14 @@ var Promise = require('bluebird');
 var Docker = require('dockerode');
 var retry = require('retry');
 
-var RemoteDispatcher = module.exports = function (config) {
+var RemoteDriver = module.exports = function (config) {
 
   this.config = config;
   this._docker = new Docker(config.remote);
 
 };
 
-RemoteDispatcher.prototype.dispatch = function (workers) {
+RemoteDriver.prototype.run = function (workers) {
   var cc;
   return Promise.bind(this).then(function () {
     return this._createController();
@@ -32,7 +32,7 @@ RemoteDispatcher.prototype.dispatch = function (workers) {
   });
 };
 
-RemoteDispatcher.prototype._createController = function () {
+RemoteDriver.prototype._createController = function () {
   var config = this.config;
   var docker = this._docker;
   return new Promise(function (resolve, reject) {
@@ -47,7 +47,7 @@ RemoteDispatcher.prototype._createController = function () {
   });
 };
 
-RemoteDispatcher.prototype._createWorker = function (controllerContainer, worker) {
+RemoteDriver.prototype._createWorker = function (controllerContainer, worker) {
   var config = this.config;
   var docker = this._docker;
   return new Promise(function (resolve, reject) {
@@ -70,7 +70,7 @@ RemoteDispatcher.prototype._createWorker = function (controllerContainer, worker
   });
 };
 
-RemoteDispatcher.prototype._startContainer = function (container) {
+RemoteDriver.prototype._startContainer = function (container) {
   return new Promise(function (resolve, reject) {
     container.start({}, function (err, data) {
       if (err) {
@@ -81,7 +81,7 @@ RemoteDispatcher.prototype._startContainer = function (container) {
   });
 };
 
-RemoteDispatcher.prototype._cleanupContainer = function (container) {
+RemoteDriver.prototype._cleanupContainer = function (container) {
   return new Promise(function (resolve, reject) {
     // Workaround to give docker some time to actually finish
     // to stop the container (We see errors otherwise)
