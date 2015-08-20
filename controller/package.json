@@ -1,0 +1,11 @@
+{
+  "name": "controller",
+  "version": "1.0.0",
+  "description": "Conductor Controller",
+  "main": "app.js",
+  "author": "Sam Rijs",
+  "license": "MIT",
+  "dependencies": {
+    "bluebird": "^2.9.34"
+  }
+}

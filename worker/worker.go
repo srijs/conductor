@@ -79,8 +79,10 @@ func runWorker(name string) {
 
 	l, err := net.Listen("unix", name+".sock")
 	if err != nil {
-		log.Fatal("listen error:", err)
+		log.Fatal("listen error: ", err)
 	}
+
+  log.Println("Listening on socket " + name + ".sock")
 
 	http.Serve(l, nil)
 
