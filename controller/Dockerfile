@@ -1,5 +1,9 @@
 FROM node:0.10
 
-ADD exec.js example.js /src/
+ADD . /src/
 
 VOLUME /worker
+
+WORKDIR /worker
+
+CMD node /src/app.js

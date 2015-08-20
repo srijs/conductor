@@ -4,33 +4,45 @@ var Promise = require('bluebird');
 
 var http = require('http');
 
+var retry = require('retry');
+
 var runExec = function (image, name, args) {
 
   return new Promise(function (resolve, reject) {
 
-    var req = http.request({
-      socketPath: image + '.sock',
-      method: 'POST',
-      path: '/exec'
-    });
+    var operation = retry.operation();
 
-    req.end(JSON.stringify({
-      name: name,
-      args: args
-    }));
+    operation.attempt(function () {
 
-    req.on('error', reject);
-
-    req.on('response', function (res) {
-
-      var bufs = [];
-
-      res.on('data', function (buf) {
-        bufs.push(buf);
+      var req = http.request({
+        socketPath: image + '.sock',
+        method: 'POST',
+        path: '/exec'
       });
 
-      res.on('end', function () {
-        resolve(Buffer.concat(bufs));
+      req.end(JSON.stringify({
+        name: name,
+        args: args
+      }));
+
+      req.on('error', function (err) {
+        if (!operation.retry(err)) {
+          reject(operation.mainError());
+        }
+      });
+
+      req.on('response', function (res) {
+
+        var bufs = [];
+
+        res.on('data', function (buf) {
+          bufs.push(buf);
+        });
+
+        res.on('end', function () {
+          resolve(Buffer.concat(bufs));
+        });
+
       });
 
     });

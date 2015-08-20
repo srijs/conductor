@@ -5,3 +5,5 @@ RUN go build -v worker
 
 RUN mkdir -p /worker
 WORKDIR /worker
+
+CMD /go/worker

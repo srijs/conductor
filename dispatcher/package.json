@@ -1,12 +1,13 @@
 {
-  "name": "controller",
+  "name": "dispatcher",
   "version": "1.0.0",
-  "description": "Conductor Controller",
+  "description": "Conductor Dispatcher",
   "main": "app.js",
   "author": "Sam Rijs",
   "license": "MIT",
   "dependencies": {
     "bluebird": "^2.9.34",
+    "dockerode": "^2.2.2",
     "retry": "^0.6.1"
   }
 }
